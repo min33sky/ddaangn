@@ -7,6 +7,11 @@ interface Props {
   header?: React.ReactNode; // TODO: Mobile, Desktop Header
 }
 
+/**
+ * TabLayout
+ * @summary 모바일 화면에서 하단에 탭을 보여주는 레이아웃
+ * @param header
+ */
 export default function TabLayout({ header, children }: Props) {
   return (
     <FullHeightPage>
