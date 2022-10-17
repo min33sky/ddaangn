@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import LabelInput from '../system/LabelInput';
+import { signIn, useSession } from 'next-auth/react';
 
 function cls(...classnames: string[]) {
   return classnames.join(' ');
@@ -34,13 +35,52 @@ export default function AuthForm({ mode }: Props) {
     resolver: zodResolver(authSchema),
   });
 
+  const { data: session, status } = useSession();
+
+  console.log('session:  ', session);
+  console.log('status:  ', status);
+
+  useEffect(() => {
+    if (session) {
+      window.location.href = '/';
+    }
+  }, [session]);
+
   const [method, setMethod] = useState<'email' | 'phone'>('email');
   const onEmailClick = () => setMethod('email');
   const onPhoneClick = () => setMethod('phone');
 
+  const signInWithEmail = async (email: string) => {
+    try {
+      // Perform sign in
+      await signIn('email', {
+        redirect: false, // 로그인 실패 시 새로고침 여부
+        callbackUrl: '/',
+        email,
+      });
+      console.log('메일 확인하세요');
+      // setShowConfirm(true);
+    } catch (err) {
+      console.log('에러 발생');
+    } finally {
+    }
+  };
+
+  /**
+   * 구글 로그인
+   */
+  const signInWithGoogle = () => {
+    console.log('구글 로그인.....');
+    // Perform sign in
+    signIn('google', {
+      callbackUrl: '/',
+    });
+  };
+
   const onValid: SubmitHandler<AuthInput> = (data) => {
     if (method === 'email') {
       console.log('input Data: ', data.email);
+      signInWithEmail(data.email!);
     } else if (method === 'phone') {
       console.log('input Data: ', data.phone);
     }
@@ -131,8 +171,12 @@ export default function AuthForm({ mode }: Props) {
             </div>
           </div>
 
+          {/* 소셜 로그인 버튼 */}
           <div className="grid grid-cols-2 mt-2 gap-3">
-            <button className="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <button
+              onClick={() => signInWithGoogle()}
+              className="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+            >
               <svg
                 className="w-5 h-5"
                 aria-hidden="true"
