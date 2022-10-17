@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface Props extends React.ComponentProps<'input'> {
+export interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   errorMessage?: string;
 }
 
