@@ -1,5 +1,6 @@
 import React from 'react';
 import Footer from '../base/Footer';
+import MobileHeader from '../base/MobileHeader';
 import FullHeightPage from '../system/FullHeightPage';
 
 interface Props {
@@ -15,7 +16,7 @@ interface Props {
 export default function TabLayout({ header, children }: Props) {
   return (
     <FullHeightPage>
-      <header>헤더 자리</header>
+      {header ?? <MobileHeader />}
 
       <main className="flex flex-1 flex-col overflow-y-scroll pt-4 pl-4 pr-4">
         {children}

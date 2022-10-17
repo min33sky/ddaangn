@@ -2,13 +2,18 @@ import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Input from '../system/Input';
 
 function cls(...classnames: string[]) {
   return classnames.join(' ');
 }
 
 const authSchema = z.object({
-  email: z.string().email().optional().or(z.literal('')),
+  email: z
+    .string()
+    .email({ message: '이메일 형식이 아닙니다' })
+    .optional()
+    .or(z.literal('')),
   phone: z.number().optional(),
 });
 
@@ -28,6 +33,8 @@ export default function AuthForm({ mode }: Props) {
   } = useForm<AuthInput>({
     resolver: zodResolver(authSchema),
   });
+
+  console.log(watch());
 
   const [method, setMethod] = useState<'email' | 'phone'>('email');
   const onEmailClick = () => setMethod('email');
@@ -87,15 +94,17 @@ export default function AuthForm({ mode }: Props) {
           </label>
 
           <div className="mt-1">
-            {method === 'email' ? (
-              <input
+            {method === 'email' && (
+              <Input
                 id="input"
                 type="email"
                 {...register('email')}
-                className="appearance-none w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                placeholder="leo@google.com"
+                className=""
+                errorMessage={errors.email?.message}
                 required
               />
-            ) : null}
+            )}
 
             {method === 'phone' ? (
               <div className="flex rounded-md shadow-sm">
@@ -105,7 +114,12 @@ export default function AuthForm({ mode }: Props) {
                 <input
                   id="input"
                   type="number"
-                  {...register('phone', { valueAsNumber: true })}
+                  {...register('phone', {
+                    setValueAs(value) {
+                      console.log('kkk: ', value);
+                      return Number(value);
+                    },
+                  })}
                   className="appearance-none w-full px-3 py-2 border border-gray-300 rounded-md rounded-l-none shadow-sm placeholder-gray-400 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                   required
                 />
@@ -117,6 +131,7 @@ export default function AuthForm({ mode }: Props) {
             {method === 'phone' ? 'Get one-time password' : null}
           </button>
         </form>
+
         <div className="mt-8">
           <div className="relative">
             <div className="absolute w-full border-t border-gray-300" />
@@ -126,6 +141,7 @@ export default function AuthForm({ mode }: Props) {
               </span>
             </div>
           </div>
+
           <div className="grid grid-cols-2 mt-2 gap-3">
             <button className="flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
               <svg
