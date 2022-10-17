@@ -13,6 +13,7 @@ module.exports = {
           100: '#cffafe',
           200: '#a5f3fc',
           300: '#67e8f9',
+
           400: '#22d3ee',
           500: '#06b6d4',
           600: '#0891b2',
@@ -38,5 +39,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/aspect-ratio')],
 };

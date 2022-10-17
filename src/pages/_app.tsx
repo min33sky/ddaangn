@@ -6,6 +6,7 @@ import DialogProvider from '@/contexts/DialogContext';
 
 import Router from 'next/router';
 import NProgress from 'nprogress';
+import { Toaster } from 'react-hot-toast';
 // import 'nprogress/nprogress.css'; //styles of nprogress
 
 NProgress.configure({ showSpinner: false });
@@ -27,6 +28,7 @@ function MyApp({
         <DialogProvider>
           <Component {...pageProps} />
         </DialogProvider>
+        <Toaster />
       </SessionProvider>
     </>
   );
