@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
 import { Session } from 'next-auth';
+import DialogProvider from '@/contexts/DialogContext';
 
 function MyApp({
   Component,
@@ -12,7 +13,9 @@ function MyApp({
   return (
     <>
       <SessionProvider session={session}>
-        <Component {...pageProps} />
+        <DialogProvider>
+          <Component {...pageProps} />
+        </DialogProvider>
       </SessionProvider>
     </>
   );

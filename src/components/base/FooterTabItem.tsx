@@ -1,3 +1,4 @@
+import useOpenLoginDialog from '@/hooks/useOpenLoginDialog';
 import {
   ChatBubbleOvalLeftEllipsisIcon,
   GlobeAsiaAustraliaIcon,
@@ -5,9 +6,10 @@ import {
   UserIcon,
   VideoCameraIcon,
 } from '@heroicons/react/24/outline';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { createElement } from 'react';
+import React, { createElement } from 'react';
 
 const iconMap = {
   home: HomeIcon,
@@ -34,6 +36,15 @@ export default function FooterTabItem({ icon, title, to }: Props) {
   const router = useRouter();
   const iconElement = createElement(iconMap[icon]);
   const isActive = router.pathname === to;
+  const { data: session } = useSession();
+  const openLoginDIalog = useOpenLoginDialog();
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (!session) {
+      e.preventDefault();
+      openLoginDIalog('profile');
+    }
+  };
 
   return (
     <Link href={to}>
@@ -41,6 +52,7 @@ export default function FooterTabItem({ icon, title, to }: Props) {
         className={`flex flex-1 items-center justify-center flex-col ${
           isActive && 'text-orange-500'
         }`}
+        onClick={handleClick}
       >
         <figure className="h-5 w-5">{iconElement}</figure>
         <p>{title}</p>

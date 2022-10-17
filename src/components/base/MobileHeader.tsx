@@ -6,7 +6,7 @@ interface Props {
 }
 
 function MobileHeader({
-  title = <div>Title</div>,
+  title = <div>Daangn</div>,
   titleFullWidth,
   headerLeft,
   headerRight,

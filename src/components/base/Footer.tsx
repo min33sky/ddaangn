@@ -14,7 +14,7 @@ export default function Footer() {
       <FooterTabItem icon="community" to="/community" title="동네생활" />
       <FooterTabItem icon="live" to="/live" title="라이브" />
       <FooterTabItem icon="chat" to="/chats" title="채팅" />
-      <FooterTabItem icon="me" to="/profile" title="내 정보" />
+      <FooterTabItem icon="me" to="/profile" title="나의 당근" />
     </nav>
   );
 }

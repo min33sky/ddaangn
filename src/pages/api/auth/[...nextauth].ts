@@ -39,6 +39,7 @@ export default NextAuth({
 
     async session({ session, token, user }) {
       console.log(' ** session ** ', { session, token, user });
+
       return session;
     },
   },
