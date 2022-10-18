@@ -46,7 +46,12 @@ export interface CreateProduct {
   image: string;
 }
 
-export interface GetProduct extends Product {
+export interface GetProduct {
+  product: GetProductWithOwner;
+  relatedProducts: Product[];
+}
+
+export interface GetProductWithOwner extends Product {
   owner: {
     id: string;
     name: string;

@@ -29,7 +29,28 @@ export default async function handler(
         res.status(404).json({ error: 'Product not found' });
       }
 
-      res.status(200).json(product);
+      const terms = product?.name.split(' ').map((term) => ({
+        name: {
+          contains: term,
+        },
+      }));
+
+      const relatedProducts = await prisma.product.findMany({
+        where: {
+          OR: terms,
+          AND: {
+            id: {
+              not: product?.id, // 현재 상품 제외
+            },
+          },
+        },
+        take: 4,
+      });
+
+      res.status(200).json({
+        product,
+        relatedProducts,
+      });
     } catch (error) {
       res.status(500).json({ error });
     }

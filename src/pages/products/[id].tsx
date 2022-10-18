@@ -14,11 +14,17 @@ export default function ItemDetailPage() {
   const router = useRouter();
   const id = router.query.id as string;
 
-  const { data: product } = useGetProduct(id, {
+  const { data } = useGetProduct(id, {
     onSuccess: () => {
       console.log('Product fetched successfully');
     },
   });
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  const { product, relatedProducts } = data;
 
   return (
     <TabLayout>
@@ -88,16 +94,24 @@ export default function ItemDetailPage() {
             </div>
           </div>
         </section>
+
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">유사 상품들</h2>
+          <h2 className="text-2xl font-bold text-gray-900">관련 상품들</h2>
           <div className=" mt-6 grid grid-cols-2 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((_, i) => (
-              <div key={i}>
+            {relatedProducts.map((product) => (
+              <div key={product.id}>
                 <div className="h-56 w-full mb-4 bg-slate-300" />
-                <h3 className="text-gray-700 -mb-1">Galaxy S60</h3>
-                <span className="text-sm font-medium text-gray-900">$6</span>
+                <h3 className="text-gray-700 -mb-1">{product.name}</h3>
+                <span className="text-sm font-medium text-gray-900">
+                  {currencyFormat(product.price)}
+                </span>
               </div>
             ))}
+            {relatedProducts.length === 0 && (
+              <div className="text-gray-700 font-semibold">
+                관련 상품이 없습니다...
+              </div>
+            )}
           </div>
         </div>
       </div>
