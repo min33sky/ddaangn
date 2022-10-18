@@ -1,3 +1,4 @@
+import { currencyFormat } from '@/lib/currencyFormat';
 import { Product } from '@prisma/client';
 import Image from 'next/image';
 import React from 'react';
@@ -20,7 +21,9 @@ export default function Card({ price, description, image, name }: Props) {
         <div className="pt-2 flex flex-col">
           <h3 className="text-sm font-medium text-gray-900">{name}</h3>
           <span className="text-xs text-gray-500">{description}</span>
-          <span className="font-medium mt-1 text-gray-900">{price}</span>
+          <span className="font-medium mt-1 text-gray-900">
+            {currencyFormat(price)}
+          </span>
         </div>
       </div>
 

@@ -1,3 +1,5 @@
+import { getProducts } from '@/lib/api/products';
+import { GetStaticProps, GetStaticPropsContext } from 'next';
 import React from 'react';
 
 export default function ItemDetailPage() {
@@ -65,4 +67,13 @@ export default function ItemDetailPage() {
       </div>
     </div>
   );
+}
+
+export async function getStaticPaths() {
+  const products = await getProducts();
+}
+
+export async function getStaticProps({ params }: GetStaticPropsContext) {
+  // TODO: params에서 id를 가져와서 해당하는 상품을 불러와서 props로 넘겨준다.
+  console.log('아이디 ~~~~~~~~~: ', params?.id);
 }
