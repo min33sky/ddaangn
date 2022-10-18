@@ -7,16 +7,21 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const session = await getSession({ req });
+  if (req.method === 'GET') {
+    try {
+      const products = await prisma.product.findMany({});
+      res.status(200).json(products);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  } else if (req.method === 'POST') {
+    const session = await getSession({ req });
 
-  if (!session) {
-    res.status(401).json({ message: '로그인이 필요합니다.' });
-    return;
-  }
+    if (!session) {
+      res.status(401).json({ message: '로그인이 필요합니다.' });
+      return;
+    }
 
-  console.log('로그인 유저 아이디: ', session.user.id);
-
-  if (req.method === 'POST') {
     const { name, price, description, image } = req.body;
     console.log(name, price, description, image);
 
@@ -42,7 +47,7 @@ export default async function handler(
       res.status(500).json({ message: '상품 등록에 실패했습니다.' });
     }
   } else {
-    res.setHeader('Allow', ['POST']);
+    res.setHeader('Allow', ['POST', 'GET']);
     res.status(405).json({
       message: `HTTP Method ${req.method} is not supported.`,
     });
