@@ -7,6 +7,9 @@ import DialogProvider from '@/contexts/DialogContext';
 import Router from 'next/router';
 import NProgress from 'nprogress';
 import { Toaster } from 'react-hot-toast';
+import getQueryClient from '@/lib/queryClient';
+import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 // import 'nprogress/nprogress.css'; //styles of nprogress
 
 NProgress.configure({ showSpinner: false });
@@ -18,17 +21,25 @@ Router.events.on('routeChangeError', () => NProgress.done());
 
 function MyApp({
   Component,
-  pageProps: { session, ...pageProps },
+  pageProps: { session, dehydratedState, ...pageProps },
 }: AppProps<{
   session: Session;
+  dehydratedState: any;
 }>) {
+  const queryClient = getQueryClient();
+
   return (
     <>
       <SessionProvider session={session}>
-        <DialogProvider>
-          <Component {...pageProps} />
-        </DialogProvider>
-        <Toaster />
+        <QueryClientProvider client={queryClient}>
+          <Hydrate state={dehydratedState}>
+            <DialogProvider>
+              <Component {...pageProps} />
+            </DialogProvider>
+          </Hydrate>
+          <Toaster />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
       </SessionProvider>
     </>
   );
