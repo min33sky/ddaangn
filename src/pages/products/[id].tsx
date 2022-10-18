@@ -1,5 +1,8 @@
-import { getProducts } from '@/lib/api/products';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { queryKeys } from '@/constants';
+import { getProduct, getProductsIds } from '@/lib/api/products';
+import getQueryClient from '@/lib/queryClient';
+import { dehydrate } from '@tanstack/react-query';
+import { GetStaticPropsContext } from 'next';
 import React from 'react';
 
 export default function ItemDetailPage() {
@@ -70,10 +73,32 @@ export default function ItemDetailPage() {
 }
 
 export async function getStaticPaths() {
-  const products = await getProducts();
+  const products = await getProductsIds();
+
+  const paths = products.map((product) => ({
+    params: { id: product.id },
+  }));
+
+  return {
+    paths,
+    fallback: false,
+  };
 }
 
 export async function getStaticProps({ params }: GetStaticPropsContext) {
-  // TODO: params에서 id를 가져와서 해당하는 상품을 불러와서 props로 넘겨준다.
-  console.log('아이디 ~~~~~~~~~: ', params?.id);
+  const queryClient = getQueryClient();
+
+  const id = Array.isArray(params?.id) ? params?.id[0] : params?.id;
+
+  if (id) {
+    await queryClient.prefetchQuery([queryKeys.getProduct, id], () =>
+      getProduct(id),
+    );
+  }
+
+  return {
+    props: {
+      dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
+    },
+  };
 }

@@ -10,6 +10,27 @@ export async function getProducts() {
 }
 
 /**
+ * 상품 ID 목록 조회
+ */
+export async function getProductsIds() {
+  const { data } = await client.get<
+    {
+      id: string;
+    }[]
+  >('/api/products/ids');
+  return data;
+}
+
+/**
+ * 상품 조회
+ * @param id 상품 ID
+ */
+export async function getProduct(id: string) {
+  const { data } = await client.get<GetProduct>(`/api/products/${id}`);
+  return data;
+}
+
+/**
  * 상품 등록
  * @param productData
  */
@@ -23,4 +44,12 @@ export interface CreateProduct {
   description: string;
   price: number;
   image: string;
+}
+
+export interface GetProduct extends Product {
+  owner: {
+    id: string;
+    name: string;
+    image: string;
+  };
 }
