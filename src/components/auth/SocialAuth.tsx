@@ -1,18 +1,20 @@
 import useOpenAlertDialog from '@/hooks/useOpenAlertDialog';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import React from 'react';
 
 export default function SocialAuth() {
+  const router = useRouter();
   const openAlertDIalog = useOpenAlertDialog();
 
   /**
    * 구글 로그인
    */
   const signInWithGoogle = () => {
-    console.log('구글 로그인.....');
+    console.log('구글로 로그인 중입니다.....');
     // Perform sign in
     signIn('google', {
-      callbackUrl: '/',
+      callbackUrl: `${router.query.callbackUrl}`,
     });
   };
 

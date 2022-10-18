@@ -23,7 +23,8 @@ export default function useOpenLoginDialog() {
         title: '로그인이 필요합니다',
         description,
         confirmText: '로그인',
-        onConfirm: () => router.push(`/auth/signin?next=${router.pathname}`), //? 로그인 후 현재 위치로 돌아오기 위한 설정
+        onConfirm: () =>
+          router.push(`/auth/signin?callbackUrl=${router.pathname}`), //? 로그인 후 현재 위치로 돌아오기 위한 설정
         mode: 'confirmCancel',
       });
     },

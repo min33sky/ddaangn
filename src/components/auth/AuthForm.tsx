@@ -6,6 +6,7 @@ import LabelInput from '../system/LabelInput';
 import { signIn, useSession } from 'next-auth/react';
 import Button from '../system/Button';
 import SocialAuth from './SocialAuth';
+import { useRouter } from 'next/router';
 
 function cls(...classnames: string[]) {
   return classnames.join(' ');
@@ -28,6 +29,8 @@ interface Props {
 }
 
 export default function AuthForm({ mode }: Props) {
+  const router = useRouter();
+
   const {
     handleSubmit,
     register,
@@ -42,11 +45,11 @@ export default function AuthForm({ mode }: Props) {
   console.log('session:  ', session);
   console.log('status:  ', status);
 
-  useEffect(() => {
-    if (session) {
-      window.location.href = '/';
-    }
-  }, [session]);
+  // useEffect(() => {
+  //   if (session) {
+  //     window.location.href = '/';
+  //   }
+  // }, [session]);
 
   const [method, setMethod] = useState<'email' | 'phone'>('email');
   const onEmailClick = () => setMethod('email');
@@ -57,7 +60,7 @@ export default function AuthForm({ mode }: Props) {
       // Perform sign in
       await signIn('email', {
         redirect: false, // 로그인 실패 시 새로고침 여부
-        callbackUrl: '/',
+        callbackUrl: `${router.query.callbackUrl}`,
         email,
       });
       console.log('메일 확인하세요');

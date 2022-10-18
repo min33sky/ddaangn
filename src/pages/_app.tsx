@@ -30,17 +30,17 @@ function MyApp({
 
   return (
     <>
-      <SessionProvider session={session}>
-        <QueryClientProvider client={queryClient}>
-          <Hydrate state={dehydratedState}>
-            <DialogProvider>
+      <DialogProvider>
+        <SessionProvider session={session}>
+          <QueryClientProvider client={queryClient}>
+            <Hydrate state={dehydratedState}>
               <Component {...pageProps} />
-            </DialogProvider>
-          </Hydrate>
-          <Toaster />
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-      </SessionProvider>
+            </Hydrate>
+            <Toaster />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
+        </SessionProvider>
+      </DialogProvider>
     </>
   );
 }
