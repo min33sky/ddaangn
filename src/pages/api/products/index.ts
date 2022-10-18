@@ -36,8 +36,7 @@ export default async function handler(
       });
 
       res.status(200).json({
-        success: true,
-        product,
+        ...product,
       });
     } catch (error) {
       res.status(500).json({ message: '상품 등록에 실패했습니다.' });

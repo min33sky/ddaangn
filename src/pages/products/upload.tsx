@@ -6,8 +6,6 @@ import toast from 'react-hot-toast';
 import { supabase } from '@/lib/supabase';
 import LabelInput from '@/components/system/LabelInput';
 import LabelTextarea from '@/components/system/LabelTextarea';
-import { useMutation } from '@tanstack/react-query';
-import { CreateProduct, createProduct } from '@/lib/api/products';
 import useCreateProduct from '@/hooks/products/useCreateProduct';
 import { z } from 'zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -35,9 +33,9 @@ export default function UploadPage() {
   });
 
   const { mutate, isLoading } = useCreateProduct({
-    onSuccess: () => {
-      console.log('상품 등록 성공!!!!!');
-      router.replace('/');
+    onSuccess: (data) => {
+      console.log('상품 등록 성공!!!!!: ', data);
+      router.replace(`/products/${data.id}`);
     },
   });
 
