@@ -21,7 +21,11 @@ export default function Home() {
     <TabLayout>
       <div className="flex flex-col space-y-5 py-10 divide-y">
         {products?.map((product) => (
-          <Card key={product.id} {...product} />
+          <Link href={`/products/${product.id}`} key={product.id}>
+            <a>
+              <Card {...product} />
+            </a>
+          </Link>
         ))}
 
         {/* 글쓰기 플롯 버튼 */}
