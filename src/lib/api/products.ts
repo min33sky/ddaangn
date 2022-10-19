@@ -5,7 +5,7 @@ import { client } from '../client';
  * 상품 목록 조회
  */
 export async function getProducts() {
-  const { data } = await client.get<Product[]>('/api/products');
+  const { data } = await client.get<GetProducts>('/api/products');
   return data;
 }
 
@@ -50,6 +50,12 @@ export async function favoriteProduct(id: string) {
   );
   return data;
 }
+
+export type GetProducts = (Product & {
+  _count: {
+    favorites: number;
+  };
+})[];
 
 export interface CreateProduct {
   name: string;

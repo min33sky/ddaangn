@@ -18,6 +18,13 @@ export default async function handler(
             lt: undefined, // TODO:  infinite scroll할 때 id값을 넣어주면 됨
           },
         },
+        include: {
+          _count: {
+            select: {
+              favorites: true,
+            },
+          },
+        },
         take: 10,
       });
       res.status(200).json(products);
