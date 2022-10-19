@@ -1,11 +1,14 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/prisma';
+import { getSession } from 'next-auth/react';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  const session = await getSession({ req });
+
   if (req.method === 'GET') {
     try {
       const { id } = req.query;
@@ -20,6 +23,14 @@ export default async function handler(
               id: true,
               name: true,
               image: true,
+            },
+          },
+          favorites: {
+            where: {
+              userId: session?.user.id,
+            },
+            select: {
+              id: true,
             },
           },
         },

@@ -39,6 +39,18 @@ export async function createProduct(productData: CreateProduct) {
   return data;
 }
 
+/**
+ * 상품 좋아요
+ * @param id 상품 ID
+ */
+export async function favoriteProduct(id: string) {
+  const { data } = await client.post<{ message: string }>(
+    `/api/products/${id}/favorite`,
+    {},
+  );
+  return data;
+}
+
 export interface CreateProduct {
   name: string;
   description: string;
@@ -57,4 +69,7 @@ export interface GetProductWithOwner extends Product {
     name: string;
     image: string;
   };
+  favorites: {
+    id: string;
+  }[];
 }

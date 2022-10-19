@@ -1,10 +1,16 @@
 import TabLayout from '@/components/layout/TabLayout';
 import { queryKeys } from '@/constants';
+import useFavoriteProduct from '@/hooks/products/useFavoriteProduct';
 import useGetProduct from '@/hooks/products/useGetProduct';
-import { getProduct, getProductsIds } from '@/lib/api/products';
+import {
+  GetProduct,
+  getProduct,
+  getProductsIds,
+  GetProductWithOwner,
+} from '@/lib/api/products';
 import { currencyFormat } from '@/lib/currencyFormat';
 import getQueryClient from '@/lib/queryClient';
-import { dehydrate } from '@tanstack/react-query';
+import { dehydrate, useQueryClient } from '@tanstack/react-query';
 import { GetStaticPropsContext } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -12,6 +18,7 @@ import React from 'react';
 
 export default function ItemDetailPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const id = router.query.id as string;
 
   const { data } = useGetProduct(id, {
@@ -20,11 +27,50 @@ export default function ItemDetailPage() {
     },
   });
 
+  const { mutate } = useFavoriteProduct({
+    async onMutate(data) {
+      await queryClient.cancelQueries([queryKeys.getProduct, id]);
+      const previousProduct = queryClient.getQueryData([
+        queryKeys.getProduct,
+        id,
+      ]);
+
+      queryClient.setQueryData(
+        [queryKeys.getProduct, id],
+        (oldQueryData: GetProduct | undefined) => {
+          if (!oldQueryData) return undefined;
+          return {
+            ...oldQueryData,
+            favorites:
+              oldQueryData.product.favorites.length > 0
+                ? []
+                : [
+                    {
+                      id,
+                    },
+                  ],
+          };
+        },
+      );
+      return previousProduct;
+    },
+    onError(error, variables, context) {
+      queryClient.setQueryData([queryKeys.getProduct, id], context);
+    },
+    onSettled() {
+      queryClient.invalidateQueries([queryKeys.getProduct, id]);
+    },
+  });
+
   if (!data) {
     return <div>Loading...</div>;
   }
 
   const { product, relatedProducts } = data;
+
+  const toggleFavorite = () => {
+    mutate(id);
+  };
 
   return (
     <TabLayout>
@@ -74,9 +120,21 @@ export default function ItemDetailPage() {
                 판매자에게 문의하기
               </button>
 
-              <button className="p-3 rounded-md flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-500">
+              {/* 좋아요 버튼 */}
+              <button
+                onClick={toggleFavorite}
+                className={`
+                flex items-center justify-center rounded-md p-3 hover:bg-gray-100
+                ${
+                  data.product.favorites.length > 0
+                    ? 'text-red-400 hover:text-red-500'
+                    : 'text-gray-400  hover:text-gray-500'
+                }`}
+              >
                 <svg
-                  className="h-6 w-6 "
+                  className={`h-7 w-7 ${
+                    data.product.favorites.length > 0 && 'fill-red-400'
+                  }`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
