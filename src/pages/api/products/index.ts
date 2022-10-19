@@ -9,7 +9,17 @@ export default async function handler(
 ) {
   if (req.method === 'GET') {
     try {
-      const products = await prisma.product.findMany({});
+      const products = await prisma.product.findMany({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        where: {
+          id: {
+            lt: undefined, // TODO:  infinite scroll할 때 id값을 넣어주면 됨
+          },
+        },
+        take: 10,
+      });
       res.status(200).json(products);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
