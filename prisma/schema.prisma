@@ -39,18 +39,21 @@ model Session {
 }
 
 model User {
-  id            String     @id @default(cuid())
+  id            String      @id @default(cuid())
   name          String?
-  phone         Int?       @unique
-  email         String?    @unique
+  phone         Int?        @unique
+  email         String?     @unique
   emailVerified DateTime?
   image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   accounts      Account[]
   sessions      Session[]
   products      Product[]
   favorites     Favorite[]
+  posts         Post[]
+  curiosities   Curiosity[]
+  answers       Answer[]
 }
 
 model VerificationToken {
@@ -79,11 +82,45 @@ model Favorite {
 
   userId    String
   productId String
-  user      User    @relation(fields: [userId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, productId])
+}
+
+model Post {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  question    String      @db.Text
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  curiosities Curiosity[]
+  answers     Answer[]
+}
+
+model Curiosity {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, postId])
+}
+
+model Answer {
+  id        String   @id @default(cuid())
+  answer    String   @db.Text
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
