@@ -1,22 +1,39 @@
 import TabLayout from '@/components/layout/TabLayout';
 import Button from '@/components/system/Button';
-import LabelInput from '@/components/system/LabelInput';
 import LabelTextarea from '@/components/system/LabelTextarea';
 import { queryKeys } from '@/constants';
+import useCreateAnswer from '@/hooks/community/useCreateAnswer';
 import useGetPost from '@/hooks/community/useGetPost';
 import useToggleCuriosity from '@/hooks/community/useToggleCuriosity';
 import { GetPost, getPost, getPostsIds } from '@/lib/api/community';
 import getQueryClient from '@/lib/queryClient';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { dehydrate, useQueryClient } from '@tanstack/react-query';
 import { GetStaticPropsContext } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+const AnswerSchema = z.object({
+  answer: z.string().min(1).max(200).trim(),
+});
+
+type AnserInput = z.infer<typeof AnswerSchema>;
 
 export default function CommunityPostDetail() {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const id = router.query.id as string;
-  const queryClient = useQueryClient();
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<AnserInput>({
+    resolver: zodResolver(AnswerSchema),
+  });
 
   const { data } = useGetPost(id, {
     onSuccess(data) {
@@ -24,50 +41,58 @@ export default function CommunityPostDetail() {
     },
   });
 
-  const { mutate: mutateCuriosity } = useToggleCuriosity({
-    async onMutate(data) {
-      queryClient.cancelQueries([queryKeys.getPost, id]);
+  const { mutate: mutateCuriosity, isLoading: isCuriosityLoading } =
+    useToggleCuriosity({
+      async onMutate(data) {
+        queryClient.cancelQueries([queryKeys.getPost, id]);
 
-      const previousPost = queryClient.getQueryData([queryKeys.getPost, id]);
+        const previousPost = queryClient.getQueryData([queryKeys.getPost, id]);
 
-      queryClient.setQueryData(
-        [queryKeys.getPost, id],
-        (oldQueryData: GetPost | undefined) => {
-          if (!oldQueryData) return undefined;
+        queryClient.setQueryData(
+          [queryKeys.getPost, id],
+          (oldQueryData: GetPost | undefined) => {
+            if (!oldQueryData) return undefined;
 
-          return {
-            ...oldQueryData,
-            user: {
-              ...oldQueryData.user,
-              curiosities: {
-                ...(oldQueryData.user.curiosities.length > 0
-                  ? []
-                  : [
-                      {
-                        postId: id,
-                      },
-                    ]),
+            return {
+              ...oldQueryData,
+              user: {
+                ...oldQueryData.user,
+                curiosities: {
+                  ...(oldQueryData.user.curiosities.length > 0
+                    ? []
+                    : [
+                        {
+                          postId: id,
+                        },
+                      ]),
+                },
               },
-            },
-            _count: {
-              ...oldQueryData._count,
-              curious:
-                oldQueryData.user.curiosities.length !== 0
-                  ? oldQueryData._count.curiosities - 1
-                  : oldQueryData._count.curiosities + 1,
-            },
-          };
-        },
-      );
+              _count: {
+                ...oldQueryData._count,
+                curious:
+                  oldQueryData.user.curiosities.length !== 0
+                    ? oldQueryData._count.curiosities - 1
+                    : oldQueryData._count.curiosities + 1,
+              },
+            };
+          },
+        );
 
-      return previousPost;
-    },
+        return previousPost;
+      },
 
-    onError(error, variables, context) {
-      queryClient.setQueryData([queryKeys.getPost, id], context);
-    },
+      onError(error, variables, context) {
+        queryClient.setQueryData([queryKeys.getPost, id], context);
+      },
 
-    onSettled() {
+      onSettled() {
+        queryClient.invalidateQueries([queryKeys.getPost, id]);
+      },
+    });
+
+  const { mutate: mutateAnser, isLoading: isAnswerLoading } = useCreateAnswer({
+    onSuccess(data) {
+      console.log('성공: ', data);
       queryClient.invalidateQueries([queryKeys.getPost, id]);
     },
   });
@@ -75,7 +100,13 @@ export default function CommunityPostDetail() {
   if (!data) return <div>Loading...</div>;
 
   const toggleCuriosity = () => {
+    if (isCuriosityLoading) return;
     mutateCuriosity(id);
+  };
+
+  const onValid: SubmitHandler<AnserInput> = ({ answer }) => {
+    if (isAnswerLoading) return;
+    mutateAnser({ id, answer });
   };
 
   const { user, question, answers, _count } = data;
@@ -140,27 +171,6 @@ export default function CommunityPostDetail() {
               <span>궁금해요 {_count.curiosities || 0}</span>
             </button>
 
-            {/* <span
-              onClick={toggleCuriosity}
-              className="flex space-x-2 items-center text-sm"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              <span>궁금해요 {_count.curiosities}</span>
-            </span> */}
-
             <span className="flex space-x-2 items-center text-sm">
               <svg
                 className="w-4 h-4"
@@ -188,12 +198,12 @@ export default function CommunityPostDetail() {
                 <div className="w-8 h-8 bg-slate-200 rounded-full" />
                 <div>
                   <span className="text-sm block font-medium text-gray-700">
-                    Steve Jebs
+                    {answer.user.name}
                   </span>
-                  <span className="text-xs text-gray-500 block ">2시간 전</span>
-                  <p className="text-gray-700 mt-2">
-                    The best mandu restaurant is the one next to my house.
-                  </p>
+                  <span className="text-xs text-gray-500 block ">
+                    1557시간 전
+                  </span>
+                  <p className="text-gray-700 mt-2">{answer.answer}</p>
                 </div>
               </div>
             ))}
@@ -201,20 +211,25 @@ export default function CommunityPostDetail() {
               // 답변이 없을 경우
               answers.length === 0 && (
                 <div className="h-full grid place-items-center bg-gray-100">
-                  <p className="text-gray-500 text-sm">아직 답변이 없습니다</p>
+                  <p className="text-gray-500 text-sm">
+                    아직 이 질문에 대한 답변이 없습니다. 😢
+                  </p>
                 </div>
               )
             }
           </div>
 
-          <div className="space-y-2">
+          <form onSubmit={handleSubmit(onValid)} className="space-y-2">
             <LabelTextarea
+              {...register('answer')}
               labelName="답변 달기"
               rows={3}
               placeholder="답변을 달아보세요."
             />
-            <Button layoutMode="fullWidth">등록</Button>
-          </div>
+            <Button disabled={isAnswerLoading} layoutMode="fullWidth">
+              등록
+            </Button>
+          </form>
         </section>
       </div>
     </TabLayout>

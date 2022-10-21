@@ -1,4 +1,4 @@
-import { Post, User } from '@prisma/client';
+import { Answer, Post, User } from '@prisma/client';
 import { client } from '../client';
 
 /**
@@ -39,6 +39,24 @@ export async function toggleCuriosity(id: string) {
   const { data } = await client.post<{ curiosity: boolean }>(
     `/api/posts/${id}/curiosity`,
   );
+  return data;
+}
+
+/**
+ * 게시물 답변 등록
+ * @param id 게시물 ID
+ * @param answer 답변 내용
+ */
+export async function createAnswer({
+  id,
+  answer,
+}: {
+  id: string;
+  answer: string;
+}) {
+  const { data } = await client.post<Answer>(`/api/posts/${id}/answers`, {
+    answer,
+  });
   return data;
 }
 
