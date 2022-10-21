@@ -9,13 +9,19 @@ export async function getPosts() {
   return data;
 }
 
-/**
- * 커뮤니티 게시물 등록
- * @param question 질문 내용
- */
-export async function createPost(question: string) {
+export async function createPost({
+  question,
+  latitude,
+  longitude,
+}: {
+  question: string;
+  latitude?: string;
+  longitude?: string;
+}) {
   const { data } = await client.post<Post>('/api/posts', {
     question,
+    latitude,
+    longitude,
   });
   return data;
 }

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import LabelTextarea from '@/components/system/LabelTextarea';
 import Button from '@/components/system/Button';
 import { useRouter } from 'next/router';
+import useCoords from '@/hooks/useCoords';
 
 const writeSchema = z.object({
   question: z.string().min(1).max(100).trim(),
@@ -15,6 +16,9 @@ type WriteInput = z.infer<typeof writeSchema>;
 
 export default function CommunityWritePage() {
   const router = useRouter();
+  const { latitude, longitude } = useCoords();
+
+  console.log(latitude, longitude);
 
   const {
     handleSubmit,
@@ -34,7 +38,11 @@ export default function CommunityWritePage() {
   const onValid: SubmitHandler<WriteInput> = (data) => {
     if (isLoading) return;
     console.log('data: ', data);
-    mutate(data.question);
+    mutate({
+      question: data.question,
+      latitude,
+      longitude,
+    });
   };
 
   return (

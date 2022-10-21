@@ -44,12 +44,14 @@ export default async function handler(
       return;
     }
 
-    const { question } = req.body;
+    const { question, latitude, longitude } = req.body;
 
     try {
       const newPost = await prisma.post.create({
         data: {
           question,
+          latitude,
+          longitude,
           user: {
             connect: {
               id: session.user.id,
