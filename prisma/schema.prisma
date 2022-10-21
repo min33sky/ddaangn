@@ -39,21 +39,24 @@ model Session {
 }
 
 model User {
-  id            String      @id @default(cuid())
-  name          String?
-  phone         Int?        @unique
-  email         String?     @unique
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  accounts      Account[]
-  sessions      Session[]
-  products      Product[]
-  favorites     Favorite[]
-  posts         Post[]
-  curiosities   Curiosity[]
-  answers       Answer[]
+  id              String      @id @default(cuid())
+  name            String?
+  phone           Int?        @unique
+  email           String?     @unique
+  emailVerified   DateTime?
+  image           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  accounts        Account[]
+  sessions        Session[]
+  products        Product[]
+  favorites       Favorite[]
+  posts           Post[]
+  curiosities     Curiosity[]
+  answers         Answer[]
+  writtenReviews  Review[]    @relation("reviewer")
+  receivedReviews Review[]    @relation("reviewee")
+  deals           Deal[]
 }
 
 model VerificationToken {
@@ -75,6 +78,7 @@ model Product {
   owner       User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId     String
   favorites   Favorite[]
+  deals       Deal[]
 }
 
 model Favorite {
@@ -125,4 +129,31 @@ model Answer {
   postId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  review     String   @db.Text
+  reviewerId String
+  reviweeeId String
+  reviewer   User     @relation(name: "reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewee   User     @relation(name: "reviewee", fields: [reviweeeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Deal {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  kind      DealKind
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum DealKind {
+  Purchase
+  Sale
 }
