@@ -1,3 +1,4 @@
+import AnswerItem from '@/components/community/AnswerItem';
 import TabLayout from '@/components/layout/TabLayout';
 import Button from '@/components/system/Button';
 import LabelTextarea from '@/components/system/LabelTextarea';
@@ -5,6 +6,7 @@ import { queryKeys } from '@/constants';
 import useCreateAnswer from '@/hooks/community/useCreateAnswer';
 import useGetPost from '@/hooks/community/useGetPost';
 import useToggleCuriosity from '@/hooks/community/useToggleCuriosity';
+import { useDateDistance } from '@/hooks/useDateDistance';
 import { GetPost, getPost, getPostsIds } from '@/lib/api/community';
 import getQueryClient from '@/lib/queryClient';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +32,7 @@ export default function CommunityPostDetail() {
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm<AnserInput>({
     resolver: zodResolver(AnswerSchema),
@@ -92,8 +95,8 @@ export default function CommunityPostDetail() {
 
   const { mutate: mutateAnser, isLoading: isAnswerLoading } = useCreateAnswer({
     onSuccess(data) {
-      console.log('성공: ', data);
       queryClient.invalidateQueries([queryKeys.getPost, id]);
+      reset({ answer: '' });
     },
   });
 
@@ -192,20 +195,9 @@ export default function CommunityPostDetail() {
         </div>
 
         <section className="flex flex-col flex-1">
-          <div className="my-2 space-y-5 flex-1">
+          <div className="my-2 space-y-5 flex-1 ">
             {answers.map((answer) => (
-              <div key={answer.id} className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-slate-200 rounded-full" />
-                <div>
-                  <span className="text-sm block font-medium text-gray-700">
-                    {answer.user.name}
-                  </span>
-                  <span className="text-xs text-gray-500 block ">
-                    1557시간 전
-                  </span>
-                  <p className="text-gray-700 mt-2">{answer.answer}</p>
-                </div>
-              </div>
+              <AnswerItem key={answer.id} {...answer} />
             ))}
             {
               // 답변이 없을 경우
@@ -219,11 +211,14 @@ export default function CommunityPostDetail() {
             }
           </div>
 
-          <form onSubmit={handleSubmit(onValid)} className="space-y-2">
+          <form
+            onSubmit={handleSubmit(onValid)}
+            className="space-y-2 sticky bottom-0 bg-white"
+          >
             <LabelTextarea
               {...register('answer')}
               labelName="답변 달기"
-              rows={3}
+              rows={2}
               placeholder="답변을 달아보세요."
             />
             <Button disabled={isAnswerLoading} layoutMode="fullWidth">

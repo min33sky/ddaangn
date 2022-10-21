@@ -60,7 +60,7 @@ export async function createAnswer({
   return data;
 }
 
-type Author = Pick<User, 'id' | 'name' | 'image'>;
+export type Author = Pick<User, 'id' | 'name' | 'image'>;
 
 type AuthorWithCuriosity = Author & {
   curiosities: {
@@ -74,6 +74,8 @@ export interface GetPost extends Post {
     id: string;
     answer: string;
     user: Author;
+    createdAt: string;
+    updatedAt: string;
   }[];
   _count: {
     answers: number;

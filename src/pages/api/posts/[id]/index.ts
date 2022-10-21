@@ -39,6 +39,8 @@ export default async function handler(
                   image: true,
                 },
               },
+              createdAt: true,
+              updatedAt: true,
             },
           },
           _count: {
