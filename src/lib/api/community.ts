@@ -31,6 +31,17 @@ export async function getPostsIds() {
   return data;
 }
 
+/**
+ * 게시물 궁금해요 등록 및 취소
+ * @param id 게시물 ID
+ */
+export async function toggleCuriosity(id: string) {
+  const { data } = await client.post<{ curiosity: boolean }>(
+    `/api/posts/${id}/curiosity`,
+  );
+  return data;
+}
+
 type Author = Pick<User, 'id' | 'name' | 'image'>;
 
 interface GetPost extends Post {
