@@ -2,6 +2,14 @@ import { Answer, Post, User } from '@prisma/client';
 import { client } from '../client';
 
 /**
+ * 게시물 목록 조회
+ */
+export async function getPosts() {
+  const { data } = await client.get<GetPosts>('/api/posts');
+  return data;
+}
+
+/**
  * 커뮤니티 게시물 등록
  * @param question 질문 내용
  */
@@ -82,3 +90,15 @@ export interface GetPost extends Post {
     curiosities: number;
   };
 }
+
+export type GetPosts = (Post & {
+  user: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  };
+  _count: {
+    answers: number;
+    curiosities: number;
+  };
+})[];
