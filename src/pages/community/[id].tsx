@@ -4,9 +4,10 @@ import LabelInput from '@/components/system/LabelInput';
 import LabelTextarea from '@/components/system/LabelTextarea';
 import { queryKeys } from '@/constants';
 import useGetPost from '@/hooks/community/useGetPost';
-import { getPost, getPostsIds } from '@/lib/api/community';
+import useToggleCuriosity from '@/hooks/community/useToggleCuriosity';
+import { GetPost, getPost, getPostsIds } from '@/lib/api/community';
 import getQueryClient from '@/lib/queryClient';
-import { dehydrate } from '@tanstack/react-query';
+import { dehydrate, useQueryClient } from '@tanstack/react-query';
 import { GetStaticPropsContext } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -15,6 +16,7 @@ import React from 'react';
 export default function CommunityPostDetail() {
   const router = useRouter();
   const id = router.query.id as string;
+  const queryClient = useQueryClient();
 
   const { data } = useGetPost(id, {
     onSuccess(data) {
@@ -22,14 +24,66 @@ export default function CommunityPostDetail() {
     },
   });
 
+  const { mutate: mutateCuriosity } = useToggleCuriosity({
+    async onMutate(data) {
+      queryClient.cancelQueries([queryKeys.getPost, id]);
+
+      const previousPost = queryClient.getQueryData([queryKeys.getPost, id]);
+
+      queryClient.setQueryData(
+        [queryKeys.getPost, id],
+        (oldQueryData: GetPost | undefined) => {
+          if (!oldQueryData) return undefined;
+
+          return {
+            ...oldQueryData,
+            user: {
+              ...oldQueryData.user,
+              curiosities: {
+                ...(oldQueryData.user.curiosities.length > 0
+                  ? []
+                  : [
+                      {
+                        postId: id,
+                      },
+                    ]),
+              },
+            },
+            _count: {
+              ...oldQueryData._count,
+              curious:
+                oldQueryData.user.curiosities.length !== 0
+                  ? oldQueryData._count.curiosities - 1
+                  : oldQueryData._count.curiosities + 1,
+            },
+          };
+        },
+      );
+
+      return previousPost;
+    },
+
+    onError(error, variables, context) {
+      queryClient.setQueryData([queryKeys.getPost, id], context);
+    },
+
+    onSettled() {
+      queryClient.invalidateQueries([queryKeys.getPost, id]);
+    },
+  });
+
   if (!data) return <div>Loading...</div>;
+
+  const toggleCuriosity = () => {
+    mutateCuriosity(id);
+  };
 
   const { user, question, answers, _count } = data;
 
   return (
     <TabLayout>
       <div className="flex flex-col flex-1">
-        <span className="inline-flex w-fit my-3 ml-4 items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
+        <span className="cursor-pointer inline-flex w-fit my-3 ml-4 items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800">
           동네질문
         </span>
 
@@ -61,7 +115,35 @@ export default function CommunityPostDetail() {
             <span className="text-orange-500 font-medium">Q.</span> {question}
           </div>
           <div className="flex px-4 space-x-5 mt-3 text-gray-700 py-2.5 border-t border-b-[2px]  w-full">
-            <span className="flex space-x-2 items-center text-sm">
+            {/* 궁금해요 */}
+            <button
+              onClick={toggleCuriosity}
+              className={`
+                flex items-center space-x-2 text-sm
+                ${user.curiosities.length > 0 ? 'text-purple-600' : ''}
+              `}
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <span>궁금해요 {_count.curiosities || 0}</span>
+            </button>
+
+            {/* <span
+              onClick={toggleCuriosity}
+              className="flex space-x-2 items-center text-sm"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -77,7 +159,8 @@ export default function CommunityPostDetail() {
                 ></path>
               </svg>
               <span>궁금해요 {_count.curiosities}</span>
-            </span>
+            </span> */}
+
             <span className="flex space-x-2 items-center text-sm">
               <svg
                 className="w-4 h-4"

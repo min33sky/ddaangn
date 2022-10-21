@@ -21,6 +21,11 @@ export default async function handler(
               id: true,
               name: true,
               image: true,
+              curiosities: {
+                select: {
+                  postId: true,
+                },
+              },
             },
           },
           answers: {

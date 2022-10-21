@@ -44,8 +44,14 @@ export async function toggleCuriosity(id: string) {
 
 type Author = Pick<User, 'id' | 'name' | 'image'>;
 
-interface GetPost extends Post {
-  user: Author;
+type AuthorWithCuriosity = Author & {
+  curiosities: {
+    postId: string;
+  }[];
+};
+
+export interface GetPost extends Post {
+  user: AuthorWithCuriosity;
   answers: {
     id: string;
     answer: string;
