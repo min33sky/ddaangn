@@ -1,7 +1,8 @@
+import { baseUrl } from '@/constants';
 import axios from 'axios';
 
 export const client = axios.create();
-client.defaults.baseURL = 'http://localhost:3000';
+client.defaults.baseURL = baseUrl;
 client.defaults.withCredentials = true;
 
 /**
