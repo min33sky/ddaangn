@@ -8,7 +8,27 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   if (req.method === 'GET') {
-    // 게시물 목록 가져와야함
+    // 게시물 목록 가져와야함 위도 경도도 가져온다.
+
+    const {
+      query: { latitude, longitude },
+    } = req;
+
+    const parsedLatitude = latitude
+      ? parseFloat(latitude.toString())
+      : undefined;
+
+    const parsedLongitude = longitude
+      ? parseFloat(longitude.toString())
+      : undefined;
+
+    console.log(
+      '위도, 경도: ',
+      latitude,
+      parsedLatitude,
+      longitude,
+      parsedLongitude,
+    );
 
     try {
       const posts = await prisma.post.findMany({
@@ -29,6 +49,20 @@ export default async function handler(
               curiosities: true,
             },
           },
+        },
+        where: {
+          latitude: parsedLatitude
+            ? {
+                gte: parsedLatitude - 0.01,
+                lte: parsedLatitude + 0.01,
+              }
+            : undefined,
+          longitude: parsedLongitude
+            ? {
+                gte: parsedLongitude - 0.01,
+                lte: parsedLongitude + 0.01,
+              }
+            : undefined,
         },
       });
 

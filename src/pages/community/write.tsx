@@ -37,7 +37,6 @@ export default function CommunityWritePage() {
 
   const onValid: SubmitHandler<WriteInput> = (data) => {
     if (isLoading) return;
-    console.log('data: ', data);
     mutate({
       question: data.question,
       latitude,

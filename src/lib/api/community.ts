@@ -4,8 +4,16 @@ import { client } from '../client';
 /**
  * 게시물 목록 조회
  */
-export async function getPosts() {
-  const { data } = await client.get<GetPosts>('/api/posts');
+export async function getPosts({
+  latitude,
+  longitude,
+}: {
+  latitude?: number;
+  longitude?: number;
+}) {
+  const { data } = await client.get<GetPosts>(
+    `/api/posts?latitude=${latitude}&longitude=${longitude}`,
+  );
   return data;
 }
 
@@ -15,8 +23,8 @@ export async function createPost({
   longitude,
 }: {
   question: string;
-  latitude?: string;
-  longitude?: string;
+  latitude?: number;
+  longitude?: number;
 }) {
   const { data } = await client.post<Post>('/api/posts', {
     question,

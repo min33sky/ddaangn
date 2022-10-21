@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
 interface CoordsState {
-  latitude: number | null;
-  longitude: number | null;
+  latitude?: number;
+  longitude?: number;
 }
 
 export default function useCoords() {
   const [coords, setCoords] = useState<CoordsState>({
-    latitude: null,
-    longitude: null,
+    latitude: undefined,
+    longitude: undefined,
   });
 
   useEffect(() => {
