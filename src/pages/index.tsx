@@ -29,7 +29,7 @@ export default function Home() {
         ))}
 
         {/* 글쓰기 플롯 버튼 */}
-        {session && <FloatCreateButton />}
+        {session && <FloatCreateButton type="products" />}
       </div>
     </TabLayout>
   );
