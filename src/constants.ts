@@ -9,4 +9,6 @@ export const queryKeys = {
   getPost: 'getPost',
   getPosts: 'getPosts',
   getReviews: 'getReviews',
+  getFavorites: 'getFavorites',
+  getDeals: 'getDeals',
 };

@@ -7,6 +7,7 @@ import { dehydrate } from '@tanstack/react-query';
 import { GetServerSidePropsContext } from 'next';
 import { getSession, useSession } from 'next-auth/react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 
 export default function Profile() {
@@ -44,6 +45,7 @@ export default function Profile() {
               판매내역
             </span>
           </div>
+
           <div className="flex flex-col items-center">
             <div className="w-14 h-14 text-white bg-orange-400 rounded-full flex items-center justify-center">
               <svg
@@ -65,27 +67,30 @@ export default function Profile() {
               구매내역
             </span>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="w-14 h-14 text-white bg-orange-400 rounded-full flex items-center justify-center">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                ></path>
-              </svg>
-            </div>
-            <span className="text-sm mt-2 font-medium text-gray-700">
-              관심목록
-            </span>
-          </div>
+
+          <Link href="/profile/favorites">
+            <a className="flex flex-col items-center">
+              <div className="w-14 h-14 text-white bg-orange-400 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  ></path>
+                </svg>
+              </div>
+              <span className="text-sm mt-2 font-medium text-gray-700">
+                관심목록
+              </span>
+            </a>
+          </Link>
         </div>
 
         {/* 리뷰 목록 */}
