@@ -18,8 +18,6 @@ export default function CommunityPage() {
   const { latitude, longitude } = useCoords();
   const [mode, setMode] = useState<'All' | 'Nearby'>('All');
 
-  console.log(latitude, longitude);
-
   const { data: posts, refetch } = useGetPosts(
     {
       latitude: mode === 'Nearby' ? latitude : undefined,
@@ -44,6 +42,10 @@ export default function CommunityPage() {
     refetch();
   }, [mode, refetch]);
 
+  if (!posts) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <TabLayout>
       <nav className="flex space-x-4 justify-center">
@@ -60,7 +62,7 @@ export default function CommunityPage() {
       </nav>
 
       <div className="mt-2 flex flex-col space-y-8">
-        {posts?.map((post) => (
+        {posts.map((post) => (
           <Link key={post.id} href={`/community/${post.id}`}>
             <a>
               <PostItem {...post} />
