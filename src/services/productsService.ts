@@ -24,6 +24,10 @@ export const productsService = {
     return products;
   },
 
+  /**
+   * # getSession()은 SSG에서 사용할 수 없다. 그래서 안씀
+   * @deprecated
+   */
   async getProductsIds() {
     const ids = await prisma.product.findMany({
       select: {
@@ -34,10 +38,16 @@ export const productsService = {
     return ids;
   },
 
-  async getProduct(id: string) {
+  async getProduct({
+    productId,
+    userId,
+  }: {
+    productId: string;
+    userId?: string;
+  }) {
     const product = await prisma.product.findUnique({
       where: {
-        id,
+        id: productId,
       },
       include: {
         owner: {
@@ -45,11 +55,6 @@ export const productsService = {
             id: true,
             name: true,
             image: true,
-          },
-        },
-        favorites: {
-          select: {
-            id: true,
           },
         },
       },
@@ -77,9 +82,24 @@ export const productsService = {
       take: 4,
     });
 
+    //?  좋아요 여부는 로그인 한 사람만 확인
+    const isLiked = userId
+      ? Boolean(
+          await prisma.favorite.findUnique({
+            where: {
+              userId_productId: {
+                productId,
+                userId,
+              },
+            },
+          }),
+        )
+      : false;
+
     return {
       product,
       relatedProducts,
+      isLiked,
     };
   },
 };

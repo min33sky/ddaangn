@@ -1,6 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '@/lib/prisma';
 import { getSession } from 'next-auth/react';
 import { productsService } from '@/services/productsService';
 
@@ -21,13 +20,16 @@ export default async function handler(
         return;
       }
 
-      const { product, relatedProducts } = await productsService.getProduct(
-        productId,
-      );
+      const { product, relatedProducts, isLiked } =
+        await productsService.getProduct({
+          productId,
+          userId: session?.user?.id,
+        });
 
       res.status(200).json({
         product,
         relatedProducts,
+        isLiked,
       });
     } catch (error) {
       res.status(500).json({ error });

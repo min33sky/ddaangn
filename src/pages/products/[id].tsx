@@ -11,12 +11,12 @@ import {
 import { currencyFormat } from '@/lib/currencyFormat';
 import getQueryClient from '@/lib/queryClient';
 import { dehydrate, useQueryClient } from '@tanstack/react-query';
-import { GetStaticPropsContext } from 'next';
+import { GetServerSidePropsContext } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { prisma } from '@/lib/prisma';
 import { productsService } from '@/services/productsService';
+import { getSession } from 'next-auth/react';
 
 export default function ItemDetailPage() {
   const router = useRouter();
@@ -27,6 +27,8 @@ export default function ItemDetailPage() {
     onSuccess: () => {
       console.log('Product fetched successfully');
     },
+    staleTime: 0,
+    // cacheTime: 0,
   });
 
   const { mutate } = useFavoriteProduct({
@@ -43,14 +45,7 @@ export default function ItemDetailPage() {
           if (!oldQueryData) return undefined;
           return {
             ...oldQueryData,
-            favorites:
-              oldQueryData.product.favorites.length > 0
-                ? []
-                : [
-                    {
-                      id,
-                    },
-                  ],
+            isLiked: !oldQueryData.isLiked,
           };
         },
       );
@@ -128,15 +123,13 @@ export default function ItemDetailPage() {
                 className={`
                 flex items-center justify-center rounded-md p-3 hover:bg-gray-100
                 ${
-                  data.product.favorites.length > 0
+                  data.isLiked
                     ? 'text-red-400 hover:text-red-500'
                     : 'text-gray-400  hover:text-gray-500'
                 }`}
               >
                 <svg
-                  className={`h-7 w-7 ${
-                    data.product.favorites.length > 0 && 'fill-red-400'
-                  }`}
+                  className={`h-7 w-7 ${data.isLiked && 'fill-red-400'}`}
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -179,30 +172,35 @@ export default function ItemDetailPage() {
   );
 }
 
-export async function getStaticPaths() {
-  // TODO: 빌드 시 API를 호출해 DB로부터 가져와야 하는데 localhost의 api가 호출이 불가능. (서버 연결이 안되므로)
-  // TODO: 그래서 prisma에서 직접 불러오는 방식으로 구현해야함 (Service객체를 만들어섯 구현하는 방식으로 할듯?)
+// export async function getStaticPaths() {
+//   const products = await productsService.getProductsIds();
 
-  const products = await productsService.getProductsIds();
+//   const paths = products.map((product) => ({
+//     params: { id: product.id },
+//   }));
 
-  const paths = products.map((product) => ({
-    params: { id: product.id },
-  }));
+//   return {
+//     paths,
+//     fallback: false,
+//   };
+// }
 
-  return {
-    paths,
-    fallback: false,
-  };
-}
-
-export async function getStaticProps({ params }: GetStaticPropsContext) {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
   const queryClient = getQueryClient();
+  const session = await getSession(context);
+
+  const { params } = context;
 
   const id = Array.isArray(params?.id) ? params?.id[0] : params?.id;
 
+  console.log('시발~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: ', session);
+
   if (id) {
     await queryClient.prefetchQuery([queryKeys.getProduct, id], () =>
-      productsService.getProduct(id),
+      productsService.getProduct({
+        productId: id,
+        userId: session?.user.id,
+      }),
     );
   }
 

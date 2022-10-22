@@ -67,6 +67,7 @@ export interface CreateProduct {
 export interface GetProduct {
   product: GetProductWithOwner;
   relatedProducts: Product[];
+  isLiked: boolean;
 }
 
 export interface GetProductWithOwner extends Product {
@@ -75,7 +76,4 @@ export interface GetProductWithOwner extends Product {
     name: string;
     image: string;
   };
-  favorites: {
-    id: string;
-  }[];
 }
