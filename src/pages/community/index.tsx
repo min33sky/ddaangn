@@ -46,6 +46,8 @@ export default function CommunityPage() {
     return <div>Loading...</div>;
   }
 
+  console.log('*** posts ***: ', posts);
+
   return (
     <TabLayout>
       <nav className="flex space-x-4 justify-center">
