@@ -5,6 +5,7 @@ import { queryKeys } from '@/constants';
 import useGetProducts from '@/hooks/products/useGetProducts';
 import { getProducts } from '@/lib/api/products';
 import getQueryClient from '@/lib/queryClient';
+import { productsService } from '@/services/productsService';
 import { dehydrate } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -38,7 +39,10 @@ export default function Home() {
 export async function getStaticProps() {
   const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery([queryKeys.getProducts], getProducts);
+  await queryClient.prefetchQuery(
+    [queryKeys.getProducts],
+    productsService.getProducts,
+  );
 
   return {
     props: {

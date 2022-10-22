@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/lib/prisma';
 import { getSession } from 'next-auth/react';
+import { productsService } from '@/services/productsService';
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,50 +14,16 @@ export default async function handler(
     try {
       const { id } = req.query;
 
-      const product = await prisma.product.findUnique({
-        where: {
-          id: Array.isArray(id) ? id[0] : id,
-        },
-        include: {
-          owner: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-            },
-          },
-          favorites: {
-            where: {
-              userId: session?.user.id,
-            },
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
+      const productId = Array.isArray(id) ? id[0] : id;
 
-      if (!product) {
-        res.status(404).json({ error: 'Product not found' });
+      if (!productId) {
+        res.status(400).json({ message: '상품 ID가 필요합니다.' });
+        return;
       }
 
-      const terms = product?.name.split(' ').map((term) => ({
-        name: {
-          contains: term,
-        },
-      }));
-
-      const relatedProducts = await prisma.product.findMany({
-        where: {
-          OR: terms,
-          AND: {
-            id: {
-              not: product?.id, // 현재 상품 제외
-            },
-          },
-        },
-        take: 4,
-      });
+      const { product, relatedProducts } = await productsService.getProduct(
+        productId,
+      );
 
       res.status(200).json({
         product,

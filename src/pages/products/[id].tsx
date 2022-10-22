@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { prisma } from '@/lib/prisma';
+import { productsService } from '@/services/productsService';
 
 export default function ItemDetailPage() {
   const router = useRouter();
@@ -182,13 +183,7 @@ export async function getStaticPaths() {
   // TODO: 빌드 시 API를 호출해 DB로부터 가져와야 하는데 localhost의 api가 호출이 불가능. (서버 연결이 안되므로)
   // TODO: 그래서 prisma에서 직접 불러오는 방식으로 구현해야함 (Service객체를 만들어섯 구현하는 방식으로 할듯?)
 
-  // const products = await getProductsIds();
-
-  const products = await prisma.product.findMany({
-    select: {
-      id: true,
-    },
-  });
+  const products = await productsService.getProductsIds();
 
   const paths = products.map((product) => ({
     params: { id: product.id },
@@ -207,7 +202,7 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
 
   if (id) {
     await queryClient.prefetchQuery([queryKeys.getProduct, id], () =>
-      getProduct(id),
+      productsService.getProduct(id),
     );
   }
 

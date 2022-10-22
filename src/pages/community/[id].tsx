@@ -9,6 +9,7 @@ import useToggleCuriosity from '@/hooks/community/useToggleCuriosity';
 import { useDateDistance } from '@/hooks/useDateDistance';
 import { GetPost, getPost, getPostsIds } from '@/lib/api/community';
 import getQueryClient from '@/lib/queryClient';
+import { postsService } from '@/services/postsService';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { dehydrate, useQueryClient } from '@tanstack/react-query';
 import { GetStaticPropsContext } from 'next';
@@ -232,7 +233,8 @@ export default function CommunityPostDetail() {
 }
 
 export async function getStaticPaths() {
-  const posts = await getPostsIds();
+  // const posts = await getPostsIds();
+  const posts = await postsService.getPostsIds();
 
   const paths = posts.map((post) => ({
     params: {
@@ -252,7 +254,9 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   const id = Array.isArray(params?.id) ? params?.id[0] : params?.id;
 
   if (id) {
-    await queryClient.prefetchQuery([queryKeys.getPost, id], () => getPost(id));
+    await queryClient.prefetchQuery([queryKeys.getPost, id], () =>
+      postsService.getPost(id),
+    );
   }
 
   return {
