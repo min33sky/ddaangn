@@ -1,4 +1,4 @@
-import { Favorite, Product, Review, DealKind } from '@prisma/client';
+import { Favorite, Product, Review, DealKind, Deal } from '@prisma/client';
 import { client } from './../client';
 
 export async function getReviews() {
@@ -12,7 +12,9 @@ export async function getFavorites() {
 }
 
 export async function getDeals(kind: DealKind) {
-  const { data } = await client.get(`/api/users/me/deals?kind=${kind}`);
+  const { data } = await client.get<GetDeals>(
+    `/api/users/me/deals?kind=${kind}`,
+  );
   return data;
 }
 
@@ -28,6 +30,14 @@ type GetFavorites = (Favorite & {
   product: Product & {
     _count: {
       favorites: number;
+    };
+  };
+})[];
+
+type GetDeals = (Deal & {
+  product: Product & {
+    _count: {
+      deals: number;
     };
   };
 })[];
