@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
 import { prisma } from '@/lib/prisma';
+import { postsService } from '@/services/postsService';
 
 export default async function handler(
   req: NextApiRequest,
@@ -31,39 +32,9 @@ export default async function handler(
     );
 
     try {
-      const posts = await prisma.post.findMany({
-        orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-            },
-          },
-          _count: {
-            select: {
-              answers: true,
-              curiosities: true,
-            },
-          },
-        },
-        where: {
-          latitude: parsedLatitude
-            ? {
-                gte: parsedLatitude - 0.01,
-                lte: parsedLatitude + 0.01,
-              }
-            : undefined,
-          longitude: parsedLongitude
-            ? {
-                gte: parsedLongitude - 0.01,
-                lte: parsedLongitude + 0.01,
-              }
-            : undefined,
-        },
+      const posts = await postsService.getPosts({
+        latitude: parsedLatitude,
+        longitude: parsedLongitude,
       });
 
       res.status(200).json(posts);

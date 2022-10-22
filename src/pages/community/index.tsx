@@ -4,8 +4,8 @@ import FloatCreateButton from '@/components/product/FloatCreateButton';
 import { queryKeys } from '@/constants';
 import useGetPosts from '@/hooks/community/useGetPosts';
 import useCoords from '@/hooks/useCoords';
-import { getPosts } from '@/lib/api/community';
 import getQueryClient from '@/lib/queryClient';
+import { postsService } from '@/services/postsService';
 import { dehydrate } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -81,7 +81,9 @@ export default function CommunityPage() {
 export async function getStaticProps() {
   const queryClient = getQueryClient();
 
-  await queryClient.prefetchQuery([queryKeys.getPosts], () => getPosts({}));
+  await queryClient.prefetchQuery([queryKeys.getPosts], () =>
+    postsService.getPosts({}),
+  );
 
   return {
     props: {
