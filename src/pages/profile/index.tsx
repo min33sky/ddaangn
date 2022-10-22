@@ -1,7 +1,17 @@
 import TabLayout from '@/components/layout/TabLayout';
+import { queryKeys } from '@/constants';
+import useGetReviews from '@/hooks/user/useGetReviews';
+import getQueryClient from '@/lib/queryClient';
+import { userService } from '@/services/userService';
+import { dehydrate } from '@tanstack/react-query';
+import { GetServerSidePropsContext } from 'next';
+import { getSession, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import React from 'react';
 
 export default function Profile() {
+  const { data: reviewsData } = useGetReviews({});
+
   return (
     <TabLayout>
       <div className="py-10 px-4">
@@ -77,72 +87,76 @@ export default function Profile() {
             </span>
           </div>
         </div>
-        <div className="mt-12">
-          <div className="flex space-x-4 items-center">
-            <div className="w-12 h-12 rounded-full bg-slate-500" />
-            <div>
-              <h4 className="text-sm font-bold text-gray-800">니꼬</h4>
-              <div className="flex items-center">
-                <svg
-                  className="text-yellow-400 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <svg
-                  className="text-yellow-400 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <svg
-                  className="text-yellow-400 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <svg
-                  className="text-yellow-400 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <svg
-                  className="text-gray-400 h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+
+        {/* 리뷰 목록 */}
+        {reviewsData?.map((review) => (
+          <div className="mt-12" key={review.id}>
+            <div className="flex space-x-4 items-center">
+              {review.reviewer.image ? (
+                <figure className="relative w-12 h-12 rounded-full overflow-hidden">
+                  <Image
+                    src={review.reviewer.image}
+                    layout="fill"
+                    objectFit="contain"
+                    alt="avatar"
+                  />
+                </figure>
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-slate-500" />
+              )}
+
+              <div>
+                <h4 className="text-sm font-bold text-gray-800">
+                  {review.reviewer.name}
+                </h4>
+                <div className="flex items-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg
+                      key={star}
+                      className={`text-yellow-400 h-5 w-5 ${
+                        review.score < star && 'text-gray-300'
+                      }`}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
               </div>
             </div>
+            <div className="mt-4 text-gray-600 text-sm">
+              <p>{review.review}</p>
+            </div>
           </div>
-          <div className="mt-4 text-gray-600 text-sm">
-            <p>
-              Normally, both your asses would be dead as fucking fried chicken,
-              but you happen to pull this shit while I&apos;m in a transitional
-              period so I don&apos;t wanna kill you, I wanna help you. But I
-              can&apos;t give you this case, it don&apos;t belong to me.
-              Besides, I&apos;ve already been through too much shit this morning
-              over this case to hand it over to your dumb ass.
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
     </TabLayout>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const queryClient = getQueryClient();
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/?callbackUrl=/profile',
+        permanent: false,
+      },
+    };
+  }
+
+  await queryClient.prefetchQuery([queryKeys.getReviews], () =>
+    userService.getReviews(session.user.id),
+  );
+
+  return {
+    props: {
+      dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
+    },
+  };
 }

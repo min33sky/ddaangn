@@ -1,7 +1,7 @@
 import { Review } from '@prisma/client';
 import { client } from './../client';
 
-export async function getReviews(revieweeId: string) {
+export async function getReviews() {
   const { data } = await client.get<GetReviews>(`/api/reviews`);
   return data;
 }
