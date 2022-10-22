@@ -20,7 +20,13 @@ export default function Profile() {
           <div className="w-16 h-16 bg-slate-500 rounded-full" />
           <div className="flex flex-col">
             <span className="font-medium text-gray-900">Steve Jebs</span>
-            <span className="text-sm text-gray-700">Edit profile &rarr;</span>
+            <Link href="/profile/edit">
+              <a>
+                <span className="text-sm text-gray-700">
+                  Edit profile &rarr;
+                </span>
+              </a>
+            </Link>
           </div>
         </div>
         <div className="mt-10 flex justify-around">
