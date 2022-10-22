@@ -86,7 +86,7 @@ export default function ItemDetailPage() {
             <div className="h-96 bg-slate-300" />
           )}
           <div className="flex cursor-pointer py-3 border-t border-b items-center space-x-3">
-            {product?.owner ? (
+            {product?.owner.image ? (
               <figure className="w-12 h-12 relative rounded-full overflow-hidden">
                 <Image src={product.owner.image} layout="fill" alt="avatar" />
               </figure>

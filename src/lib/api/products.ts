@@ -73,7 +73,7 @@ export interface GetProduct {
 export interface GetProductWithOwner extends Product {
   owner: {
     id: string;
-    name: string;
-    image: string;
+    name: string | null;
+    image: string | null;
   };
 }
