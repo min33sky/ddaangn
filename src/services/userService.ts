@@ -2,6 +2,10 @@ import { prisma } from '@/lib/prisma';
 import { DealKind } from '@prisma/client';
 
 export const userService = {
+  /**
+   * 내 정보 조회
+   * @param userId
+   */
   async getMyStatus(userId: string) {
     const me = await prisma.user.findUnique({
       where: {

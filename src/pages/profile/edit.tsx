@@ -15,9 +15,17 @@ import { userService } from '@/services/userService';
 import { dehydrate } from '@tanstack/react-query';
 import useGetMyStatus from '@/hooks/user/useGetMyStatus';
 import useSetMyStatus from '@/hooks/user/useSetMyStatus';
+import Head from 'next/head';
 
 const EditSchema = z.object({
-  name: z.string().min(2).max(10),
+  name: z
+    .string()
+    .min(2, {
+      message: '최소 2글자 이상 입력해주세요.',
+    })
+    .max(10, {
+      message: '최대 10글자까지 입력할 수 있습니다.',
+    }),
   email: z
     .string()
     .email({ message: '이메일 형식이 아닙니다' })
@@ -38,7 +46,7 @@ export default function EditPage() {
       toast.success('프로필이 수정되었습니다');
     },
     onError(error, variables, context) {
-      toast.error(error.message);
+      toast.error('프로필 수정에 실패했습니다');
     },
   });
 
@@ -82,7 +90,6 @@ export default function EditPage() {
           '.in',
         )}/storage/v1/object/public/${process.env
           .NEXT_PUBLIC_SUPABASE_BUCKET!}/${uploadData?.path}`;
-        console.log('image URL: ', url);
 
         setImageUrl(url);
         toast.success('이미지 업로드 성공', { id: toastId });
@@ -93,13 +100,6 @@ export default function EditPage() {
     }
   };
 
-  // console.log(watch());
-  console.log(errors);
-
-  //! 이미지 주소 지워야함
-  // const tempImg =
-  //   'https://lh3.googleusercontent.com/a/ALm5wu2iIvg4fTX9LLqmjbyL6lBKFHoe9jKQ9Hdip3vMTw=s96-c';
-
   if (!myStatus) {
     return <div>Loading.........</div>;
   }
@@ -108,6 +108,10 @@ export default function EditPage() {
 
   return (
     <TabLayout>
+      <Head>
+        <title>프로필 수정 | Daangn</title>
+      </Head>
+
       <form onSubmit={handleSubmit(onValid)} className="py-10 px-4 space-y-4">
         <div className="flex items-center space-x-3">
           <div
@@ -134,6 +138,7 @@ export default function EditPage() {
 
         <LabelInput
           {...register('name')}
+          errorMessage={errors.name?.message}
           labelName="이름"
           placeholder="이름을 적어주세요"
           defaultValue={name ?? ''}
@@ -142,6 +147,7 @@ export default function EditPage() {
 
         <LabelInput
           {...register('email')}
+          errorMessage={errors.email?.message}
           labelName="이메일"
           type={'email'}
           placeholder="이메일을 적어주세요"
@@ -150,19 +156,20 @@ export default function EditPage() {
 
         <LabelInput
           id="input"
-          type="number"
+          type="tel"
           labelName="전화번호"
           {...register('phone', {
             setValueAs(value) {
               return Number(value);
             },
           })}
+          errorMessage={errors.phone?.message}
           placeholder="전화번호를 적어주세요"
           defaultValue={phone ?? ''}
         />
 
         <Button disabled={isLoading} layoutMode="fullWidth">
-          변경하기
+          수정하기
         </Button>
       </form>
     </TabLayout>
@@ -176,7 +183,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (!session) {
     return {
       redirect: {
-        destination: '/kkkkkkkkkk?callbackUrl=/profile',
+        destination: '/?callbackUrl=/profile',
         permanent: false,
       },
     };

@@ -8,6 +8,9 @@ import {
 } from '@prisma/client';
 import { client } from './../client';
 
+/**
+ * 내 정보 조회
+ */
 export async function getMyStatus() {
   const { data } = await client.get<User>(`/api/users/me`);
   return data;
