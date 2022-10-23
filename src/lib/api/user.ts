@@ -1,5 +1,17 @@
-import { Favorite, Product, Review, DealKind, Deal } from '@prisma/client';
+import {
+  Favorite,
+  Product,
+  Review,
+  DealKind,
+  Deal,
+  User,
+} from '@prisma/client';
 import { client } from './../client';
+
+export async function getMyStatus() {
+  const { data } = await client.get<User>(`/api/users/me`);
+  return data;
+}
 
 export async function getReviews() {
   const { data } = await client.get<GetReviews>(`/api/reviews`);

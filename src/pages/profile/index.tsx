@@ -1,29 +1,44 @@
 import TabLayout from '@/components/layout/TabLayout';
 import { queryKeys } from '@/constants';
+import useGetMyStatus from '@/hooks/user/useGetMyStatus';
 import useGetReviews from '@/hooks/user/useGetReviews';
 import getQueryClient from '@/lib/queryClient';
 import { userService } from '@/services/userService';
 import { dehydrate } from '@tanstack/react-query';
 import { GetServerSidePropsContext } from 'next';
-import { getSession, useSession } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
 export default function Profile() {
   const { data: reviewsData } = useGetReviews({});
+  const { data: myStatus } = useGetMyStatus();
 
   return (
     <TabLayout>
       <div className="py-10 px-4">
         <div className="flex items-center space-x-3">
-          <div className="w-16 h-16 bg-slate-500 rounded-full" />
+          {myStatus?.image ? (
+            <figure className="relative w-16 h-16 rounded-full overflow-hidden">
+              <Image
+                src={myStatus.image}
+                layout="fill"
+                objectFit="contain"
+                alt="avatar"
+              />
+            </figure>
+          ) : (
+            <div className="w-16 h-16 bg-slate-500 rounded-full" />
+          )}
           <div className="flex flex-col">
-            <span className="font-medium text-gray-900">Steve Jebs</span>
+            <span className="font-medium text-gray-900">
+              {myStatus?.name || '닉네임이 없어요'}
+            </span>
             <Link href="/profile/edit">
               <a>
-                <span className="text-sm text-gray-700">
-                  Edit profile &rarr;
+                <span className="text-sm text-gray-700 hover:text-orange-500 transition">
+                  프로필 수정 &rarr;
                 </span>
               </a>
             </Link>
@@ -162,6 +177,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
     };
   }
+
+  await queryClient.prefetchQuery([queryKeys.getMyStatus], () =>
+    userService.getMyStatus(session.user.id),
+  );
 
   await queryClient.prefetchQuery([queryKeys.getReviews], () =>
     userService.getReviews(session.user.id),

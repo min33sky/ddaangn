@@ -11,4 +11,5 @@ export const queryKeys = {
   getReviews: 'getReviews',
   getFavorites: 'getFavorites',
   getDeals: 'getDeals',
+  getMyStatus: 'getMyStatus',
 };

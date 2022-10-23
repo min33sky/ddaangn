@@ -2,6 +2,26 @@ import { prisma } from '@/lib/prisma';
 import { DealKind } from '@prisma/client';
 
 export const userService = {
+  async getMyStatus(userId: string) {
+    const me = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    return me;
+  },
+
+  async setMyStatus({}: {
+    userId: string;
+    image?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+  }) {
+    // TODO
+  },
+
   async getReviews(revieweeId: string) {
     const reviews = await prisma.review.findMany({
       where: {
