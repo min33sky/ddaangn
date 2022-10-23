@@ -2,9 +2,11 @@ import TabLayout from '@/components/layout/TabLayout';
 import Button from '@/components/system/Button';
 import LabelInput from '@/components/system/LabelInput';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React from 'react';
+import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { z } from 'zod';
+import { supabase } from '@/lib/supabase';
 
 const EditSchema = z.object({
   name: z.string().min(2).max(10),
@@ -19,6 +21,8 @@ const EditSchema = z.object({
 type EditInput = z.infer<typeof EditSchema>;
 
 export default function EditPage() {
+  const [imageUrl, setImageUrl] = useState('');
+
   const {
     handleSubmit,
     register,
@@ -32,21 +36,64 @@ export default function EditPage() {
     console.log(data);
   };
 
+  const handleChangeImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (file) {
+      let toastId: string;
+
+      try {
+        const ext = file.name.split('.').pop();
+        const path = `${file.name.split('.')[0]}_${Date.now()}.${ext}`;
+
+        toastId = toast.loading('이미지 업로드 중...');
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET!)
+          .upload(path, file);
+
+        const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL!.replace(
+          '.co',
+          '.in',
+        )}/storage/v1/object/public/${process.env
+          .NEXT_PUBLIC_SUPABASE_BUCKET!}/${uploadData?.path}`;
+        console.log('image URL: ', url);
+
+        setImageUrl(url);
+        toast.success('이미지 업로드 성공', { id: toastId });
+      } catch (error) {
+        toast.error('이미지 업로드 실패');
+      } finally {
+      }
+    }
+  };
+
   console.log(watch());
   console.log(errors);
+
+  //! 이미지 주소 지워야함
+  const tempImg =
+    'https://lh3.googleusercontent.com/a/ALm5wu2iIvg4fTX9LLqmjbyL6lBKFHoe9jKQ9Hdip3vMTw=s96-c';
 
   return (
     <TabLayout>
       <form onSubmit={handleSubmit(onValid)} className="py-10 px-4 space-y-4">
         <div className="flex items-center space-x-3">
-          <div className="w-14 h-14 rounded-full bg-slate-500" />
+          <div
+            style={{ backgroundImage: `url(${imageUrl})` }}
+            className={`w-14 h-14 rounded-full bg-slate-500 bg-contain bg-no-repeat`}
+          />
           <label
             htmlFor="picture"
-            className="cursor-pointer py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 text-gray-700"
+            className={`cursor-pointer py-2 px-3 border border-gray-300
+            rounded-md shadow-sm text-sm font-medium
+            focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 text-gray-700
+            `}
           >
             이미지 변경
             <input
               id="picture"
+              onChange={handleChangeImage}
               type="file"
               className="hidden"
               accept="image/*"
