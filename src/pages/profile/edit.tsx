@@ -14,6 +14,7 @@ import { queryKeys } from '@/constants';
 import { userService } from '@/services/userService';
 import { dehydrate } from '@tanstack/react-query';
 import useGetMyStatus from '@/hooks/user/useGetMyStatus';
+import useSetMyStatus from '@/hooks/user/useSetMyStatus';
 
 const EditSchema = z.object({
   name: z.string().min(2).max(10),
@@ -22,7 +23,7 @@ const EditSchema = z.object({
     .email({ message: '이메일 형식이 아닙니다' })
     .optional()
     .or(z.literal('')),
-  phone: z.number().max(12).optional(),
+  phone: z.number().optional().or(z.undefined()),
 });
 
 type EditInput = z.infer<typeof EditSchema>;
@@ -32,6 +33,14 @@ type EditInput = z.infer<typeof EditSchema>;
  */
 export default function EditPage() {
   const { data: myStatus } = useGetMyStatus();
+  const { mutate: mutateMyStatus, isLoading } = useSetMyStatus({
+    onSuccess: () => {
+      toast.success('프로필이 수정되었습니다');
+    },
+    onError(error, variables, context) {
+      toast.error(error.message);
+    },
+  });
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -45,7 +54,11 @@ export default function EditPage() {
   });
 
   const onValid: SubmitHandler<EditInput> = (data) => {
-    console.log(data);
+    if (isLoading) return;
+    mutateMyStatus({
+      ...data,
+      image: imageUrl ?? '',
+    });
   };
 
   const handleChangeImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +93,7 @@ export default function EditPage() {
     }
   };
 
-  console.log(watch());
+  // console.log(watch());
   console.log(errors);
 
   //! 이미지 주소 지워야함
@@ -148,7 +161,9 @@ export default function EditPage() {
           defaultValue={phone ?? ''}
         />
 
-        <Button layoutMode="fullWidth">변경하기</Button>
+        <Button disabled={isLoading} layoutMode="fullWidth">
+          변경하기
+        </Button>
       </form>
     </TabLayout>
   );
@@ -161,7 +176,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (!session) {
     return {
       redirect: {
-        destination: '/?callbackUrl=/profile',
+        destination: '/kkkkkkkkkk?callbackUrl=/profile',
         permanent: false,
       },
     };

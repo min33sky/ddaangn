@@ -25,6 +25,7 @@ export const userService = {
     email?: string;
     phone?: number;
   }) {
+    //TODO: validate email, phone, etc.
     const updatedUser = await prisma.user.update({
       where: {
         id: userId,
