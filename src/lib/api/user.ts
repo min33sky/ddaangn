@@ -13,6 +13,26 @@ export async function getMyStatus() {
   return data;
 }
 
+export async function setMyStatus({
+  image,
+  name,
+  email,
+  phone,
+}: {
+  image?: string;
+  name?: string;
+  email?: string;
+  phone?: number;
+}) {
+  const { data } = await client.put<User>(`/api/users/me`, {
+    image,
+    name,
+    email,
+    phone,
+  });
+  return data;
+}
+
 export async function getReviews() {
   const { data } = await client.get<GetReviews>(`/api/reviews`);
   return data;

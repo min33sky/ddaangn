@@ -12,14 +12,32 @@ export const userService = {
     return me;
   },
 
-  async setMyStatus({}: {
+  async setMyStatus({
+    userId,
+    email,
+    image,
+    name,
+    phone,
+  }: {
     userId: string;
     image?: string;
     name?: string;
     email?: string;
-    phone?: string;
+    phone?: number;
   }) {
-    // TODO
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        image,
+        name,
+        email,
+        phone,
+      },
+    });
+
+    return updatedUser;
   },
 
   async getReviews(revieweeId: string) {

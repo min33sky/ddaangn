@@ -7,6 +7,13 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabase';
+import getQueryClient from '@/lib/queryClient';
+import { GetServerSidePropsContext } from 'next';
+import { getSession } from 'next-auth/react';
+import { queryKeys } from '@/constants';
+import { userService } from '@/services/userService';
+import { dehydrate } from '@tanstack/react-query';
+import useGetMyStatus from '@/hooks/user/useGetMyStatus';
 
 const EditSchema = z.object({
   name: z.string().min(2).max(10),
@@ -20,8 +27,13 @@ const EditSchema = z.object({
 
 type EditInput = z.infer<typeof EditSchema>;
 
+/**
+ * 프로필 수정 페이지
+ */
 export default function EditPage() {
-  const [imageUrl, setImageUrl] = useState('');
+  const { data: myStatus } = useGetMyStatus();
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -72,15 +84,21 @@ export default function EditPage() {
   console.log(errors);
 
   //! 이미지 주소 지워야함
-  const tempImg =
-    'https://lh3.googleusercontent.com/a/ALm5wu2iIvg4fTX9LLqmjbyL6lBKFHoe9jKQ9Hdip3vMTw=s96-c';
+  // const tempImg =
+  //   'https://lh3.googleusercontent.com/a/ALm5wu2iIvg4fTX9LLqmjbyL6lBKFHoe9jKQ9Hdip3vMTw=s96-c';
+
+  if (!myStatus) {
+    return <div>Loading.........</div>;
+  }
+
+  const { email, image, name, phone } = myStatus;
 
   return (
     <TabLayout>
       <form onSubmit={handleSubmit(onValid)} className="py-10 px-4 space-y-4">
         <div className="flex items-center space-x-3">
           <div
-            style={{ backgroundImage: `url(${imageUrl})` }}
+            style={{ backgroundImage: `url(${imageUrl ?? image})` }}
             className={`w-14 h-14 rounded-full bg-slate-500 bg-contain bg-no-repeat`}
           />
           <label
@@ -105,6 +123,7 @@ export default function EditPage() {
           {...register('name')}
           labelName="이름"
           placeholder="이름을 적어주세요"
+          defaultValue={name ?? ''}
           required
         />
 
@@ -113,6 +132,7 @@ export default function EditPage() {
           labelName="이메일"
           type={'email'}
           placeholder="이메일을 적어주세요"
+          defaultValue={email ?? ''}
         />
 
         <LabelInput
@@ -125,10 +145,35 @@ export default function EditPage() {
             },
           })}
           placeholder="전화번호를 적어주세요"
+          defaultValue={phone ?? ''}
         />
 
         <Button layoutMode="fullWidth">변경하기</Button>
       </form>
     </TabLayout>
   );
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const queryClient = getQueryClient();
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/?callbackUrl=/profile',
+        permanent: false,
+      },
+    };
+  }
+
+  await queryClient.prefetchQuery([queryKeys.getMyStatus], () =>
+    userService.getMyStatus(session.user.id),
+  );
+
+  return {
+    props: {
+      dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient))),
+    },
+  };
 }
