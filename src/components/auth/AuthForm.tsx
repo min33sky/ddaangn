@@ -30,6 +30,7 @@ interface Props {
 
 export default function AuthForm({ mode }: Props) {
   const router = useRouter();
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const {
     handleSubmit,
@@ -45,11 +46,11 @@ export default function AuthForm({ mode }: Props) {
   console.log('session:  ', session);
   console.log('status:  ', status);
 
-  // useEffect(() => {
-  //   if (session) {
-  //     window.location.href = '/';
-  //   }
-  // }, [session]);
+  useEffect(() => {
+    if (session) {
+      window.location.href = '/';
+    }
+  }, [session]);
 
   const [method, setMethod] = useState<'email' | 'phone'>('email');
   const onEmailClick = () => setMethod('email');
@@ -58,13 +59,13 @@ export default function AuthForm({ mode }: Props) {
   const signInWithEmail = async (email: string) => {
     try {
       // Perform sign in
-      await signIn('email', {
+      const data = await signIn('email', {
         redirect: false, // 로그인 실패 시 새로고침 여부
         callbackUrl: '/',
         email,
       });
-      console.log('메일 확인하세요');
-      // setShowConfirm(true);
+      console.log('메일 확인하세요: ', data);
+      setShowConfirm(true);
     } catch (err) {
       console.log('에러 발생');
     } finally {
@@ -80,9 +81,13 @@ export default function AuthForm({ mode }: Props) {
     }
   };
 
-  // console.log('watch: ', watch());
-  if (errors.email || errors.phone) {
-    console.log({ errors });
+  if (showConfirm) {
+    return (
+      <div className="flex h-screen flex-col space-y-4 justify-center items-center">
+        <h1 className="font-bold text-2xl">인증 메일을 확인하세요</h1>
+        <p>{watch('email')}</p>
+      </div>
+    );
   }
 
   return (

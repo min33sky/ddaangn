@@ -14,7 +14,7 @@ export default function SocialAuth() {
     console.log('구글로 로그인 중입니다.....');
     // Perform sign in
     signIn('google', {
-      callbackUrl: `${router.query.callbackUrl}`,
+      callbackUrl: '/',
     });
   };
 
