@@ -27,8 +27,8 @@ export default NextAuth({
     }),
   ],
   pages: {
-    signIn: '/auth/signin',
-    verifyRequest: '/auth/verify-request',
+    // signIn: '/auth/signin',
+    newUser: '/profile',
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {

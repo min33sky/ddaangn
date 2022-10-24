@@ -60,7 +60,7 @@ export default function AuthForm({ mode }: Props) {
       // Perform sign in
       await signIn('email', {
         redirect: false, // 로그인 실패 시 새로고침 여부
-        callbackUrl: `${router.query.callbackUrl}`,
+        callbackUrl: '/',
         email,
       });
       console.log('메일 확인하세요');
